@@ -1,6 +1,6 @@
 # City Explorer Back-End
 
-**Author**: Kai Hansen & Randee Orion
+**Author**: Eyob Tamir & Randee Orion
 **Version**: 1.0.2 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview
@@ -20,30 +20,30 @@ API- DarkSky, Eventful, LocationIQ
 ## Feature Progess
 
 ### Feature 1
-Number and name of feature: 1. Repository Set Up
+Number and name of feature: 1. Repository Set Up, PG database
 
-Estimate of time needed to complete: 20 minutes
+Estimate of time needed to complete: 1 hr 
 
-Start time: 6:30
+Start time: 2
 
-Finish time: 6:45pm
+Finish time: 2:45pm
 
-Actual time needed to complete: 15 minutes
+Actual time needed to complete: 45 minutes
 
-Kai drove while Randee navigated.
+Randee drove while Eyob navigated.
 
 ### Feature 2
-Number and name of feature: Feature 2: Location
+Number and name of feature: Feature 2: Cache
 
-Estimate of time needed to complete: 1 hours
+Estimate of time needed to complete: 1 hour
 
-Start time: 6:45pm
+Start time: 2:45pm
 
-Finish time: 9:15pm
+Finish time: 3:30pm
 
-Actual time needed to complete: 2.5 hours
+Actual time needed to complete: 45 minutes
 
-Kai drove and Randee navigated. 
+Randee drove and Eyob navigated. 
 
 ### Feature 3
 Number and name of feature: Feature 3: Weather

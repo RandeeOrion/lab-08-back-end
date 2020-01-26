@@ -5,6 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
 
 const client = new pg.Client(process.env.DATABASE_URL);
 
@@ -17,28 +18,20 @@ app.get('/', (request, response) => {
   response.send('This still works!');
 });
 
-// Location Route
-// app.get('/location', (request, response) => {
-//   try {
-//     const geoData = require('./data/geo.json');
-//     const city = request.query.city;
-//     const locationData = new Location (city, geoData);
-//     response.send(locationData);
-//   }
-//   catch(error) {
-//     errorHandler('So sorry, something went wrong.', request, response);
-//   }
-// });
+
 app.get('/location', locationHandler);
 app.get('/weather', weatherHandler);
-app.get('/eventful', eventfulHandler)
+//app.get('/eventful', eventfulHandler)
 
 //Location Handler Function
 function locationHandler(request, response){
-  let city = request.query.city;
-  if(cache.city) {
-    let location = cache.city;
-    response.send(location);
+  let sql = 'SELECT * FROM location WHERE search_query = $1';
+  client.query(sql,[request.query.city])
+  .then(result => console.log(result));
+
+  if(client.query(sql,[request.query.city])) {
+    let cacheLocation = cache[city];
+    response.send(cacheLocation);
   } else{
     try{
       let city = request.query.city;
@@ -53,8 +46,8 @@ function locationHandler(request, response){
           const geoData = data.body[0];
           console.log('city and geoData', city, geoData);
           const location = new Location(city, geoData);
-          cache.city = location;
-          console.log('location', location);
+          cache[city] = location;
+          console.log('whole cache', cache);
           response.send(location);
         })
         .catch(() => {
@@ -99,32 +92,6 @@ function Weather(day){
 
 
 
-
-
-// Weather Route
-// app.get('/weather', (request, response) => {
-//   try {
-//     const forecast = require('./data/darksky.json');
-//     const weatherData = [];
-//     for (let i = 0; i < forecast.daily.data.length; i++){
-//       let dailyForecast = forecast.daily.data[i];
-//       weatherData.push(new Weather(dailyForecast.summary, dailyForecast.time));
-//     }
-//     response.send(weatherData);
-//   }
-//   catch(error) {
-//     errorHandler('So sorry, something went wrong.', request, response);
-//   }
-// });
-
-// // Weather Constructor
-// function Weather(forecast, time){
-//   this.forecast = forecast;
-//   this.time = new Date(time*1000);
-//   console.log(this.time);
-// }
-
-
 client.connect()
   .then( ()=>{
     app.listen(PORT, () => {
@@ -136,11 +103,11 @@ client.connect()
   });
 
 
-
 // Error Handler
 function errorHandler(error, request, response) {
   response.status(500).send(error);
 }
+
 
 
 
