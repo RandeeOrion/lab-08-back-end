@@ -25,8 +25,11 @@ app.get('/weather', weatherHandler);
 
 //Location Handler Function
 function locationHandler(request, response){
-  let city = request.query.city;
-  if(cache[city]) {
+  let sql = 'SELECT * FROM location WHERE search_query = $1';
+  client.query(sql,[request.query.city])
+  .then(result => console.log(result));
+
+  if(client.query(sql,[request.query.city])) {
     let cacheLocation = cache[city];
     response.send(cacheLocation);
   } else{
