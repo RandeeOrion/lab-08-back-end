@@ -12,7 +12,7 @@ const client = new pg.Client(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
-let cache = {};
+
 
 app.get('/', (request, response) => {
   response.send('This still works!');
@@ -25,39 +25,47 @@ app.get('/weather', weatherHandler);
 
 //Location Handler Function
 function locationHandler(request, response){
-  let sql = 'SELECT * FROM location WHERE search_query = $1';
+  let sql = 'SELECT * FROM location WHERE search_query=$1;';
+  console.log('inside locationHandler');
   client.query(sql,[request.query.city])
-  .then(result => console.log(result));
+  // console.log('sql = ', sql)
+  // console.log('request = ', request.query.city)
+  // console.log('SQL console', client.query(sql,request.query.city))
+    .then(result => {
+      console.log('sucuessful quiry', result.rows);
+      if (result.rows.length > 0) {
+        console.log('found the city in the database');
+        console.log(result.row[0]);
+        response.send(result.rows[0]);
+      } else{ console.log('no city in database headed to superLena');
+        try{
+          let city = request.query.city;
+          console.log('city', request.query, city);
+          let key = process.env.GEOCODE_API_KEY;
+          const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
+          console.log('hi', url);
 
-  if(client.query(sql,[request.query.city])) {
-    let cacheLocation = cache[city];
-    response.send(cacheLocation);
-  } else{
-    try{
-      let city = request.query.city;
-      //console.log('city', request.query, city);
-      let key = process.env.GEOCODE_API_KEY;
-      const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
-      //console.log('hi', url);
-
-      superagent.get(url)
-        .then(data => {
-        //console.log(data.body[0]);
-          const geoData = data.body[0];
-          console.log('city and geoData', city, geoData);
-          const location = new Location(city, geoData);
-          cache[city] = location;
-          console.log('whole cache', cache);
-          response.send(location);
-        })
-        .catch(() => {
-          errorHandler('location superagent broke', request, response);
-        });
-    }
-    catch(error){
-      errorHandler(error, request, response);
-    }
-  }
+          superagent.get(url)
+            .then(data => {
+              console.log('in supperagent');
+              const geoData = data.body[0];
+              // console.log('city and geoData', city, geoData);
+              const location = new Location(city, geoData);
+              console.log('location inside superagent: ', location);
+              let apiToSql = 'INSERT INTO location (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+              let safeValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
+              client.query(apiToSql, safeValues);
+              response.send(location);
+            })
+            .catch(() => {
+              errorHandler('location superagent broke', request, response);
+            });
+        }
+        catch(error){
+          errorHandler(error, request, response);
+        }
+      }
+    });
 }
 
 // Location Constructor
@@ -111,3 +119,8 @@ function errorHandler(error, request, response) {
 
 
 
+// Location {
+//   search_query: 'seattle',
+//   formatted_query: 'Seattle, King County, Washington, USA',
+//   latitude: '47.6038321',
+//   longitude: '-122.3300624'
