@@ -25,17 +25,17 @@ app.get('/weather', weatherHandler);
 
 //Location Handler Function
 function locationHandler(request, response){
-  let sql = 'SELECT * FROM location WHERE search_query=$1;';
+  let sql = 'SELECT * FROM locations WHERE search_query=$1;';
   console.log('inside locationHandler');
   client.query(sql,[request.query.city])
   // console.log('sql = ', sql)
   // console.log('request = ', request.query.city)
   // console.log('SQL console', client.query(sql,request.query.city))
     .then(result => {
-      console.log('sucuessful quiry', result.rows);
+      console.log('sucuessful query', result.rows);
       if (result.rows.length > 0) {
         console.log('found the city in the database');
-        console.log(result.row[0]);
+        // console.log(result.row[0]);
         response.send(result.rows[0]);
       } else{ console.log('no city in database headed to superLena');
         try{
@@ -52,7 +52,7 @@ function locationHandler(request, response){
               // console.log('city and geoData', city, geoData);
               const location = new Location(city, geoData);
               console.log('location inside superagent: ', location);
-              let apiToSql = 'INSERT INTO location (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+              let apiToSql = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
               let safeValues = [location.search_query, location.formatted_query, location.latitude, location.longitude];
               client.query(apiToSql, safeValues);
               response.send(location);
