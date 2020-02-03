@@ -14,11 +14,6 @@ const app = express();
 app.use(cors());
 
 
-app.get('/', (request, response) => {
-  response.send('This still works!');
-});
-
-
 app.get('/location', locationHandler);
 app.get('/weather', weatherHandler);
 //app.get('/eventful', eventfulHandler)
@@ -26,16 +21,13 @@ app.get('/weather', weatherHandler);
 //Location Handler Function
 function locationHandler(request, response){
   let sql = 'SELECT * FROM location WHERE search_query=$1;';
-  console.log('inside locationHandler');
+  // console.log('inside locationHandler');
   client.query(sql,[request.query.city])
-  // console.log('sql = ', sql)
-  // console.log('request = ', request.query.city)
-  // console.log('SQL console', client.query(sql,request.query.city))
     .then(result => {
       console.log('sucuessful quiry', result.rows);
       if (result.rows.length > 0) {
-        console.log('found the city in the database');
-        console.log(result.row[0]);
+        // console.log('found the city in the database');
+        // console.log(result.row[0]);
         response.send(result.rows[0]);
       } else{ console.log('no city in database headed to superLena');
         try{
@@ -92,7 +84,7 @@ function weatherHandler(request, response) {
       errorHandler('So sorry, something went wrong. Blame the elves.', request, response);
     });
 }
-
+//  Weather Constructor
 function Weather(day){
   this.forecast = day.summary;
   this.time = new Date(day.time * 1000).toString().slice(0,15);
@@ -115,12 +107,3 @@ client.connect()
 function errorHandler(error, request, response) {
   response.status(500).send(error);
 }
-
-
-
-
-// Location {
-//   search_query: 'seattle',
-//   formatted_query: 'Seattle, King County, Washington, USA',
-//   latitude: '47.6038321',
-//   longitude: '-122.3300624'
