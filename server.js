@@ -24,10 +24,8 @@ function locationHandler(request, response){
   // console.log('inside locationHandler');
   client.query(sql,[request.query.city])
     .then(result => {
-      console.log('sucuessful quiry', result.rows);
+      console.log('successful query', result.rows);
       if (result.rows.length > 0) {
-        // console.log('found the city in the database');
-        // console.log(result.row[0]);
         response.send(result.rows[0]);
       } else{ console.log('no city in database headed to superLena');
         try{
@@ -39,7 +37,7 @@ function locationHandler(request, response){
 
           superagent.get(url)
             .then(data => {
-              console.log('in supperagent');
+              console.log('in superagent');
               const geoData = data.body[0];
               // console.log('city and geoData', city, geoData);
               const location = new Location(city, geoData);
